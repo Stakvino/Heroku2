@@ -1,0 +1,53 @@
+.form-control {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.form-control::-webkit-input-placeholder {
+  font-weight: normal;
+}
+
+.form-control::-moz-placeholder {
+  font-weight: normal;
+}
+
+.form-control:-ms-input-placeholder {
+  font-weight: normal;
+}
+
+.form-control::-ms-input-placeholder {
+  font-weight: normal;
+}
+
+.form-control::placeholder {
+  font-weight: normal;
+}
+
+.main-secion {
+  width: 1200px;
+  margin: 100px auto;
+}
+
+table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+div.search-forms {
+  margin-bottom: 20px;
+  margin-left: -0.25rem !important;
+}
+
+div.afficher-elements {
+  margin: 15px 0;
+}
+
+div.crud-buttons {
+  margin: 30px 0;
+}
+
+div.crud-buttons form,
+div.crud-buttons a {
+  display: inline-block;
+  margin-right: 15px;
+}
+
