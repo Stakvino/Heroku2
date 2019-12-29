@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Adress;
 use App\Contact;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +15,11 @@ class Fournisseur extends Model
     public function contacts()
     {
       return $this->hasMany(Contact::class);
+    }
+
+    public function adresses()
+    {
+      return $this->hasMany(Adress::class);
     }
 
     public static function search($number_of_elements)

@@ -14,6 +14,8 @@
   </div>
 @endif
 
+<h2 style="margin-bottom:25px">Ajouter un fournisseur :</h2>
+
 <form action="{{route('fournisseur.store')}}" method="post">
   @csrf
   <div class="form-group">
@@ -22,6 +24,19 @@
     value="{{old('Nom')}}">
   </div>
   
+  <div class="form-group">
+    <label>Adresse</label>
+    <input type="text" class="form-control adresse-input"   name="adresse_1"
+    placeholder="Adresse">
+    
+    <input type="text" class="form-control adresse-input"   name="adresse_2" 
+    >
+    <input type="text" class="form-control adresse-input"   name="adresse_3" 
+    >
+    <input type="text" class="form-control adresse-input"   name="adresse_4" 
+    >
+  </div>
+
   <div class="form-group">
     <label for="cp">Code Postal</label>
     <input type="text" class="form-control" name="cp" id="cp" placeholder="cp"
@@ -37,7 +52,7 @@
   <div class="form-group">
     <label for="Pays">Pays</label>
     <input type="text" class="form-control" id="Pays" placeholder="Pays" name="Pays"
-    value="{{old('Pays')}}">
+    >
   </div>
 
   <button type="submit" class="btn btn-primary">Ajouter</button>

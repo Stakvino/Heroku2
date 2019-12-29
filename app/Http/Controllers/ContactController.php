@@ -44,8 +44,7 @@ class ContactController extends Controller
       
       if($validator->fails()){
 
-        return redirect()->route('contact.create', $fournisseur_id)
-        ->withErrors($validator);
+        return response()->json($validator->errors(), 422);
 
       }
 
@@ -59,9 +58,27 @@ class ContactController extends Controller
 
       $contact = Contact::create( $attributes );
 
-      session()->flash('success_message', 'Contact Ajouter');
+      $html = '
+      <tr data-id="'.$contact->id.'">
+        <td>'.$attributes["Nom"].'</td>
+        <td>'.$attributes["Prenom"].'</td>
+        <td>'.$attributes["Tel"].'</td>
+        <td>'.$attributes["Fax"].'</td>
+        <td>'.$attributes["Mail"].'</td>
+        <td>'.$attributes["Adresse"].'</td>
+        <td> 
+          <a href="/fournisseurs/ajax/'.$contact->id.'/contactform" rel="modal:open">
+            <i class="fa fa-edit contact-edit-icon" style="margin-right:15px"></i>
+          </a> 
+          <i class="fa fa-trash contact-delete-icon"></i> 
+        </td>
+      </tr>
+      ';
 
-      return redirect()->route('fournisseur.show', $fournisseur_id);
+      return \json_encode([
+        'success_message' => 'Contact ajouter',
+        'html' => $html
+      ]);
     }
 
     /**
@@ -103,34 +120,23 @@ class ContactController extends Controller
      * @param  \App\Contact  $contact
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Fournisseur $fournisseur, Contact $contact)
+    public function update(Request $request, Contact $contact)
     {
-      
-      $columns = \Schema::getColumnListing('contacts');
+
+      $fournisseur = $contact->fournisseur;
 
       $validator = $this->validateData($request);
 
       if($validator->fails()){
 
-        return view('contact-edit')
-        ->withErrors($validator)
-        ->with( ['fournisseur_id' => $fournisseur->id, 'contact' => $contact] );
-
+        return response()->json($validator->errors(), 422);
       }
       
       $attributes = $validator->validate();
 
-      $attributes['updated_at'] = date("Y-m-d H:i:s");
-
       $contact->update($attributes);
 
-      session()->flash('success_message', 'Contact modifier');
-    
-      return redirect()->route('contact.show', [
-        'fournisseur' => $fournisseur->id,
-        'contact' => $contact->id
-        ]);
-
+      return \json_encode(['success_message' => 'Le Contact a ete modifier']);
     }
 
     /**
@@ -142,13 +148,9 @@ class ContactController extends Controller
     public function destroy(Contact $contact)
     {
       
-      $fournisseur_id = $contact->fournisseur_id; 
-
       Contact::destroy($contact->id);
 
-      session()->flash('success_message', 'Contact Supprimer');
-
-      return redirect()->route('fournisseur.show', $fournisseur_id);
+      return \json_encode(['success_message' => 'Le Contact a ete supprimer']);
         
     }
 
@@ -164,15 +166,15 @@ class ContactController extends Controller
         'Adresse' => 'required',
       ],
       [
-        'Nom.required' => 'Vous devez spécifier une valeur pour le Nom',
-        'Prenom.required' => 'Vous devez spécifier une valeur pour le Prenom',
-        'Tel.required' => 'Vous devez spécifier une valeur pour Tel',
-        'Tel.numeric' => 'Le Tel doit être un numéro',
-        'Fax.required' => 'Vous devez spécifier une valeur pour Fax',
-        'Fax.numeric' => 'Le Fax doit être un numéro',
-        'Mail.required' => 'Vous devez spécifier une valeur pour Mail',
+        'Nom.required' => 'Vous devez specifier une valeur pour le Nom',
+        'Prenom.required' => 'Vous devez specifier une valeur pour le Prenom',
+        'Tel.required' => 'Vous devez specifier une valeur pour Tel',
+        'Tel.numeric' => 'Le Tel doit etre un numero',
+        'Fax.required' => 'Vous devez specifier une valeur pour Fax',
+        'Fax.numeric' => 'Le Fax doit etre un numero',
+        'Mail.required' => 'Vous devez specifier une valeur pour Mail',
         'Mail.email' => 'Format incorrect du mail',
-        'Adresse.required' => 'Vous devez spécifier une valeur pour l\'Adresse'
+        'Adresse.required' => 'Vous devez specifier une valeur pour l\'Adresse'
       ]);
     }
 }

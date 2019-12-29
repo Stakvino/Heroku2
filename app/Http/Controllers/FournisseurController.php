@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Adress;
 use App\Contact;
 use App\Fournisseur;
 use Illuminate\Http\Request;
@@ -16,50 +17,24 @@ class FournisseurController extends Controller
      */
     public function index()
     {
+        return view('fournisseurs');
+    }
 
-        $number_of_elements = 10;
+    public function getFournisseurs()
+    {
+      $fournisseurs = Fournisseur::all();
+      
+      foreach ($fournisseurs as $fournisseur) {
 
-        if(request()->has('afficher-elements')){
+        $fournisseur['adresses'] = $fournisseur->adresses;
 
-          $number_of_elements = request()->get('afficher-elements');
-        
-        }
+        $contacts = Contact::where('fournisseur_id', $fournisseur->id)->get();  
 
-        $query_url = substr(url()->full(), strlen(url()->current()) );
-        
-        if($query_url == ""){
+        $fournisseur['contacts'] = $contacts;
 
-          header('location: /?afficher-elements=10');
-          die();
+      }
 
-        }
-
-        $fournisseurs = Fournisseur::search($number_of_elements);
-
-        if($fournisseurs->currentPage() > $fournisseurs->lastPage() ){
-
-          $redirect_url = preg_replace('/page=[^&]+/', 'page=1', $query_url);
-          
-          header('location: '.$redirect_url);
-          die();
-        }
-        
-        $fournisseurs = Fournisseur::formatDate($fournisseurs);
-
-        $links = $fournisseurs->appends(request()->input())->links();
-
-        $columns = \Schema::getColumnListing('fournisseurs');
-
-        return view('fournisseurs')
-        ->with([
-           
-          'fournisseurs' => $fournisseurs,
-
-          'columns' => $columns,
-
-          'links' => $links
-
-          ]);
+      return [ 'data' => $fournisseurs ];
     }
 
     /**
@@ -98,9 +73,24 @@ class FournisseurController extends Controller
 
       $fournisseur = Fournisseur::create( $attributes );
 
+      //Create adresses
+      $adresses_count = 4;
+
+      for ($i=1; $i <= $adresses_count; $i++) { 
+        
+        $adresse = request()->get('adresse_'.$i);
+
+        if($adresse){
+
+          Adress::create( [ 'adresse' => $adresse, 'fournisseur_id' => $fournisseur->id ] );
+
+        }
+
+      }
+
       session()->flash('success_message', 'Fournisseur Ajouter');
 
-      return redirect()->route('fournisseur.show', $fournisseur->id);
+      return redirect()->route('fournisseur.index');
     }
 
     /**
@@ -158,18 +148,13 @@ class FournisseurController extends Controller
     public function update(Request $request, $id)
     {
 
-      $columns = \Schema::getColumnListing('fournisseurs');
-
       $fournisseur = Fournisseur::find($id);
 
       $validator = $this->validateData($request);
 
       if($validator->fails()){
 
-        return view('fournisseur-edit')
-        ->withErrors($validator)
-        ->with( compact('fournisseur') );
-
+        return response()->json($validator->errors(), 422);
       }
       
       $attributes = $validator->validate();
@@ -180,11 +165,30 @@ class FournisseurController extends Controller
 
       $fournisseur->update($attributes);
 
-      session()->flash('success_message', 'Le Fournisseur a été modifier');
-    
-      return redirect()->route('fournisseur.show', $fournisseur->id);
+      //Create adresses
+      $adresses_count = 4;
+      
+      for ($i=1; $i <= $adresses_count; $i++) { 
+        
+        $adresse = request()->get('adresse_'.$i);
 
+        $adresse = $adresse ? $adresse : '';
+
+        $adresse_id = request()->get('adresse_id_'.$i);
+
+        if($adresse){
+          if($adresse_id){
+            Adress::find($adresse_id)->update(['adresse' => $adresse]);
+          }else{
+            Adress::create(['adresse' => $adresse, 'fournisseur_id' => $id]);
+          }
+        }
+
+      }
+
+      return \json_encode(['success_message' => 'Le Fournisseur a ete modifier']);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -211,11 +215,11 @@ class FournisseurController extends Controller
         'Pays' => 'required'
       ],
       [
-        'Nom.required' => 'Vous devez spécifier une valeur pour le Nom',
-        'cp.required' => 'Vous devez spécifier une valeur pour le Code Postal',
-        'cp.numeric' => 'Le Code Postal doit être un numéro',
-        'Ville.required' => 'Vous devez spécifier une valeur pour la Ville',
-        'Pays.required' => 'Vous devez spécifier une valeur pour le Pays',
+        'Nom.required' => 'Vous devez specifier une valeur pour le Nom',
+        'cp.required' => 'Vous devez specifier une valeur pour le Code Postal',
+        'cp.numeric' => 'Le Code Postal doit etre un numero',
+        'Ville.required' => 'Vous devez specifier une valeur pour la Ville',
+        'Pays.required' => 'Vous devez specifier une valeur pour le Pays',
       ]);
     }
 }

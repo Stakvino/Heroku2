@@ -12,9 +12,11 @@
 
         <link href="/img/favicon.ico" rel="SHORTCUT ICON" />
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Montserrat%7CRoboto:300,400,700" rel="stylesheet">
+        <!-- Css Libs -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="http://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 
         <!-- Styles -->
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -26,15 +28,16 @@
 <body >
 
     <div class="main-secion">
-      <div style="margin-bottom:30px">
-        <a href="/?afficher-elements=10" style="font-size:2.5em">
-          Home
-        </a>
-      </div>
       @yield('content')
     </div> 
 
-    @yield('extra-js')
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="http://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <!-- jQuery Modal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
+
+  @yield('extra-js')
 
 </body>
 </html>

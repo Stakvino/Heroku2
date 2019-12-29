@@ -51,3 +51,81 @@ div.crud-buttons a {
   margin-right: 15px;
 }
 
+td.details-control {
+  background: url(/images/details_open.png?ed1324976fd1dcb0d747a7ca5fc3ccc7) no-repeat center center;
+  cursor: pointer;
+}
+
+tr.shown td.details-control {
+  background: url(/images/details_close.png?cdb0ad00d71eff5be6ca7305cff83ce9) no-repeat center center;
+}
+
+table.child-row {
+  width: 100%;
+}
+
+table.child-row input {
+  padding: 5px;
+  width: 100%;
+}
+
+table.child-row .child-row-label {
+  font-weight: bold;
+}
+
+tr.modifier-fournisseur-tr td:first-child {
+  padding: 20px 0;
+}
+
+div.ajouter-contact-btn {
+  padding-top: 35px;
+  padding-bottom: 15px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-pack: end;
+          justify-content: flex-end;
+}
+
+input.adresse-input {
+  margin-bottom: 10px;
+}
+
+i.fournisseur-delete-icon,
+i.contact-delete-icon {
+  font-size: 1.3em;
+  color: red;
+}
+
+i.fournisseur-delete-icon,
+i.contact-delete-icon,
+i.contact-edit-icon {
+  cursor: pointer;
+}
+
+.modifier-contact-btn {
+  padding: 5px 15px;
+  margin: 0;
+}
+
+input[type=text] {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.contacts-container tbody tr td input {
+  width: 150px;
+}
+
+table.contact-table {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+table.contact-table tbody tr {
+  background-color: #337ab7;
+}
+
+table.contact-table i.contact-edit-icon {
+  color: #0a491a;
+}
+

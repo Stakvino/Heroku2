@@ -12,12 +12,47 @@ use App\Fournisseur;
 | contains the "web" middleware group. Now create something great!
 |
 */
+$adresses = Fournisseur::first()->adresses->toArray();
+//dd($adresses[0]['id']);
 
-Route::get('/', 'FournisseurController@index')->name('fournisseur.index');
+Route::get('/', 'PagesController@index')->name('pages.index');
+
+Route::get('/fournisseurs', 'FournisseurController@index')->name('fournisseur.index');
+
+Route::post('/fournisseurs/{fourniseur}/update', 'FournisseurController@update')
+->name('fournisseur.patch');
+
+Route::get('/fournisseurs/get-data', 'FournisseurController@getFournisseurs')
+->name('fournisseur.get.fournisseurs');
+
+Route::delete('/fournisseurs/{fourniseur}/destroy', 'FournisseurController@destroy')
+->name('fournisseur.destroy');
+
+Route::post('/fournisseurs/{fournisseur}/contact/store', 'ContactController@store')
+->name('contact.store');
+
+Route::post('/fournisseurs/contact/{contact}/update',
+ 'ContactController@update')->name('contact.patch');
+
+ Route::post('/contact/destroy/{contact}', 'ContactController@destroy')
+ ->name('contact.destroy');
+ 
+
+//Ajax Routes
+Route::post('/fournisseurs/{fournisseur}/ajax/childrow', 'AjaxController@childrow')
+->name('ajax.childrow');
+
+Route::get('/fournisseurs/ajax/{contact}/contactrow', 'AjaxController@contactrow')
+->name('ajax.contactrow');
+
+Route::get('/fournisseurs/ajax/{contact}/contactform', 'AjaxController@contactform')
+->name('ajax.contactform');
+
+
+
+
 
 Route::post('/', 'FournisseurController@index')->name('fournisseur.index.post');
-
-Route::patch('/{fourniseur}', 'FournisseurController@update')->name('fournisseur.patch');
 
 Route::get('/{fourniseur}', 'FournisseurController@show')->name('fournisseur.show');
 
@@ -43,14 +78,5 @@ Route::get('/{fournisseur}/contact/{contact}', 'ContactController@show')
 Route::get('/{fournisseur}/ajouter-contact', 'ContactController@create')
 ->name('contact.create');
 
-Route::post('/{fournisseur}/contact/store', 'ContactController@store')
-->name('contact.store');
-
 Route::get('/{fournisseur}/contact/{contact}/modifier-contact', 'ContactController@edit')
 ->name('contact.edit');
-
-Route::patch('/{fournisseur}/contact/{contact}/update', 'ContactController@update')
-->name('contact.patch');
-
-Route::delete('/contact/destroy/{contact}', 'ContactController@destroy')
-->name('contact.destroy');

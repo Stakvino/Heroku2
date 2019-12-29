@@ -10,106 +10,23 @@
   </div>
 @endif
 
-<h2>Recherche detaillée:</h2>
-
-<div class="row search-forms">
-  <form class="form-inline md-form form-sm active-pink-2 mt-2 search-form">
-    @csrf
-    <input class="form-control form-control-sm mr-3 w-75 search-input" type="text" placeholder="Code"
-      aria-label="Search" name="id"
-      value="{{ request()->has('id') ? request()->get('id') : ''}}">
-  </form>
-  
-  <form class="form-inline md-form form-sm active-pink-2 mt-2 search-form">
-    @csrf
-    <input class="form-control form-control-sm mr-3 w-75 search-input" type="text" placeholder="code postal"
-      aria-label="Search" name="cp"
-      value="{{ request()->has('cp') ? request()->get('cp') : ''}}">
-  </form>
-  
-  <form class="form-inline md-form form-sm active-pink-2 mt-2 search-form">
-    @csrf
-    <input class="form-control form-control-sm mr-3 w-75 search-input" type="text" placeholder="Nom"
-      aria-label="Search" name="Nom"
-      value="{{ request()->has('Nom') ? request()->get('Nom') : ''}}">
-      
-  </form>
-  
-  <form class="form-inline md-form form-sm active-pink-2 mt-2 search-form">
-    @csrf
-    <input class="form-control form-control-sm mr-3 w-75 search-input" type="text" placeholder="Pays"
-      aria-label="Search" name="Pays"
-      value="{{ request()->has('Pays') ? request()->get('Pays') : ''}}">
-  </form>
-
-  <form class="form-inline md-form form-sm active-pink-2 mt-2 search-form">
-    @csrf
-    <input class="form-control form-control-sm mr-3 w-75 search-input" type="text" placeholder="Ville"
-      aria-label="Search" name="Ville"
-      value="{{ request()->has('Ville') ? request()->get('Ville') : ''}}">
-  </form>
+<div class="ajouter-fournisseur-btn" style="margin-bottom:15px">
+  <a href="{{route('fournisseur.create')}}" class="btn btn-primary">Ajouter un fournisseur</a>
 </div>
 
-<div class="afficher-elements">
-Afficher 
-<form action="{{route('fournisseur.index.post')}}" method="post" 
-style="display:inline" id="afficher-elements-form">
-  @csrf
-  <select name="afficher-elements" id="afficher-elements-select">
-    @for($i = 10; $i < 60; $i += 10)
-      <option value="{{$i}}" 
-      {{ request()->has('afficher-elements') 
-      &&  request()->get('afficher-elements') == $i ? 
-      'selected' : ''}} >
-        {{$i}}
-      </option>
-    @endfor
-  </select>
-</form>
-éléments
-</div>
-
-<div class="row" style="margin: 20px 0">
-    <a class="btn btn-success"  
-    href="{{route('fournisseur.create')}}">
-      Ajouter un Fournisseur
-    </a>
-</div>
-
-@if($fournisseurs->count())
-<table class="table table-hover">
+<table id="fournisseurs_table" class="display" style="width:100%">
   <thead>
-    <tr>
-      @foreach($columns as $column)
-        @if($column !== 'slug')
-          <th scope="col">{{$column}}</th>
-        @endif
-      @endforeach
-    </tr>
-  </thead>
-  <tbody>    
-    @foreach($fournisseurs as $fournisseur)
-        <tr class="clickable-row" 
-        onclick="window.location='{{route('fournisseur.show', $fournisseur->id)}}'">
-          @foreach($columns as $column)
-            @if($column == 'id')
-              <th scope="row">{{$fournisseur->id}}</td>
-            @elseif($column !== 'slug')
-              <td>{{$fournisseur->$column}}</td>
-            @endif
-          @endforeach
-        </tr>
-    @endforeach
-  </tbody>
+      <tr>
+          <th></th>
+          <th>Code</th>
+          <th>Nom</th>
+          <th>Code Postal</th>
+          <th>Ville</th>
+          <th>Pays</th>
+          <th></th>
+      </tr>
+  </thead> 
 </table>
-@else
-  <p style="font-size:2em;margin:50px 0" class="alert alert-danger">
-    Aucun résultat trouvé
-  </p>
-@endif
-<div class="pagination" style="margin-top:30px">
-   {!! $links !!}     
-</div>
 
 @endsection
 
@@ -118,67 +35,340 @@ style="display:inline" id="afficher-elements-form">
 
     (function(){
 
+      /* Formatting function for row details - modify as you need */
+      function format(data) {
+        
+        let adresses = '';
 
-      const afficher_elements_select = document.getElementById('afficher-elements-select');
+        const adresses_count = 4;
+
+        if(data.adresses){
+          
+          for (let i = 1; i <= adresses_count; i++) {
             
-      afficher_elements_select.addEventListener('change', function(){
+            const element = data.adresses[i - 1];
+            
+            const value = element ? element.adresse : '';
+             
+            const id = element ? element.id : "";
 
-        let current_location = window.location.href;
+            adresses += `<input class="adresse-input" data-id="${id}"
+                          type="text" name="adresse_${i}" value="${value}">`; 
+            
+          }
 
-        current_location = current_location.replace(/afficher-elements=[^&]+/,
-         `afficher-elements=${afficher_elements_select.value}`);
+        }
+        
+        const newData = Object.assign({}, data);
 
-        window.location.href = current_location;
-      });  
+        newData['adresses'] = adresses;
+        
+        return newData;
+      }
 
-      const search_forms = document.querySelectorAll('.search-form');
-
-      const search_inputs = document.querySelectorAll('.search-input');
-
-      search_forms.forEach(function(search_form){
-
-        search_form.addEventListener('submit', function(e){
-
-          e.preventDefault();
-
-          let current_url = window.location.href;
-
-          search_inputs.forEach(function(search_input){
-              
-            const key = search_input.name;
-
-            const url_regex = new RegExp(key + '=([^&]+)');
-
-            const value = search_input.value.trim();
-
-            const match = current_url.match(url_regex);
-
-            if(value){
-
-              if(match){
-
-                current_url = current_url.replace(url_regex, `${key}=${value}`);
-
-              }else{
-
-                current_url = current_url + `&${key}=${value}`;
-
+      $(document).ready(function() {
+      var table = $('#fournisseurs_table').DataTable( {
+          "ajax": "/fournisseurs/get-data",
+          "columns": [
+              {
+                  "className":      'details-control',
+                  "orderable":      false,
+                  "data":           null,
+                  "defaultContent": ''
+              },
+              { "data": "id" }, 
+              { "data": "Nom" },
+              { "data": "cp" },
+              { "data": "Ville" },
+              { "data": "Pays" },
+              { "data" : "id", 
+                render : function(data, type, row){
+                  return `<form action="/fournisseurs/${data}/destroy" 
+                          method="post" data-id=${data} class="destroy-form">
+                          @csrf
+                          @method('delete')
+                            <button type="submit" class="fournisseur-delete-icon">
+                              <i class='fa fa-trash fournisseur-delete-icon'></i>
+                            </button>
+                          </form>`;
+                } 
               }
+          ],
+          "order": [[1, 'asc']]
+      } );
 
-            }else{
+      // Add event listener for opening and closing details
+      $('#fournisseurs_table tbody').on('click', 'td.details-control', function () {
+        
+          var tr = $(this).closest('tr');
+          var row = table.row( tr );
+          
+          if ( row.child.isShown() ) {
+              // This row is already open - close it
+              row.child.hide();
+              tr.removeClass('shown');
+          }
+          else {
 
-              current_url = current_url.replace(new RegExp('&?' + key + '=([^&]+)'), ``);
+              const data = row.data();
+              const fournisseur_id = tr.find('form.destroy-form').data('id');
+                
+              //Get childrow HTML
+              $.ajax({
+                type: "POST",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: `/fournisseurs/${fournisseur_id}/ajax/childrow`,
+                data: data,
+                success:function(response) {
+                  // Open this row
+                  row.child( response ).show();
+                  tr.addClass('shown'); 
+                },
+                error:function(e){
+                  console.log(e);
+                  
+                }
+              });
+          }
+        } );
 
+        // Add event listener for fournisseur update
+        document.body.addEventListener('click', e => {
+          
+          if(e.target.classList.contains('modifier-fournisseur-btn')){
+
+            const modifier_btn = e.target;
+            const fournisseur_id = modifier_btn.dataset['id'];
+            const form = modifier_btn.closest('form');
+            let data = $(form).serializeArray();
+            
+            const adresses_count = 4;
+
+            let adresses_html = '';
+
+            for (let i = 1; i <= adresses_count; i++) {
+              
+              const adresse_id = $(`input[name="adresse_${i}"]`, form).data('id') || '';
+              data.push( {name : "adresse_id_" + i, value : adresse_id} );
+              
             }
 
-          });
+            var tr = $('tr.odd.shown');
+            var row = table.row( tr );
+            
+            //Update fournisseur
+            $.ajax({
+              type: "POST",
+              headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: `/fournisseurs/${fournisseur_id}/update`,
+              data: data,
+              success:function(response) {
 
+                const success_message = JSON.parse(response)['success_message'];
+                $('.fournisseurs-errors').hide();
+                $('.fournisseurs-success').show()
+                .text(success_message);
+                 
+              },
+              error:function(e){
+                
+                const errors_messages = JSON.parse(e.responseText);
+                $('.fournisseurs-success').hide();
+                $('.fournisseurs-errors').show().find('ul').empty();
+
+                for (const key in errors_messages) {
+                  if (errors_messages.hasOwnProperty(key)) {
+                    const error_message = errors_messages[key];
+                    $('.fournisseurs-errors ul')
+                    .append( $(`<li>${error_message}</li>`) );
+                  }
+                }
+
+              }
+            });
+            
+          }
           
-          window.location.href = current_url;
+        })
+
+
+        //delete fournisseur
+        document.addEventListener('click', e => {
+
+          const element = e.target;
+
+          if(element.classList.contains('fournisseur-delete-icon')){
+                        
+            e.preventDefault();
+
+            if(confirm('Voulez vous vraiment supprimer ce fournisseur ?')){
+              element.closest('form').submit(); 
+            }
+                      
+          }
 
         });
 
-      });
+
+        //Add contact
+        document.addEventListener('click', e => {
+
+        const element = e.target;
+
+        if(element.classList.contains('ajouter-contact')){
+              
+          const btn = e.target;            
+          const fournisseur_id = btn.dataset['id'];   
+          const form = btn.closest('form');
+          const data = $(form).serializeArray();  
+
+          $(form).find('input').val('');
+
+          $.ajax({
+            type: "POST",
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: `/fournisseurs/${fournisseur_id}/contact/store`,
+            data: data,
+            success:function(response) {
+              response = JSON.parse(response);
+              const success_message = response['success_message'];
+              const contact_html = response['html'];
+              $('.contact-errors').hide();
+              $('.contact-success').show()
+              .text(success_message);
+
+              $('.ajouter-contact-btn').parent().find('.contacts-container tbody')
+              .append(contact_html);
+                
+            },
+            error:function(e){
+              
+              const errors_messages = JSON.parse(e.responseText);
+              
+              $('.contact-success').hide();
+              $('.contact-errors').show().find('ul').empty();
+
+              for (const key in errors_messages) {
+                if (errors_messages.hasOwnProperty(key)) {
+                  const error_message = errors_messages[key];
+                  $('.contact-errors ul')
+                  .append( $(`<li>${error_message}</li>`) );
+                }
+              }
+
+            }
+          });
+
+        }
+
+        });
+
+        //update contact
+        document.body.addEventListener('click', function(e){
+
+          if(e.target.classList.contains('modifier-contact')){
+
+          const contact_form = $('form.modifier-contact-form');  
+          const contact_id = contact_form.data('id');
+          const data = contact_form.serializeArray();
+          
+          $.ajax({
+            type: "post",
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: `/fournisseurs/contact/${contact_id}/update`,
+            data : data,
+            success:function(response) {
+
+              const success_message = JSON.parse(response)['success_message'];
+              $('.contact-errors').hide();
+              
+              //replace old contact row with new one
+              $.ajax({
+                type: "GET",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: `/fournisseurs/ajax/${contact_id}/contactrow`,
+                success:function(response) {
+                  $('.contact-success').show()
+                  .text(success_message);
+                  
+                  const old_row = $('table.contact-table tbody tr[data-id="' + contact_id +'"]');
+                  const contact_row = response;
+                  old_row.replaceWith(contact_row);
+                },error:function(e){
+
+                }
+              });
+                
+            },
+            error:function(e){
+              console.log(e.responseText);
+              
+              const errors_messages = JSON.parse(e.responseText);
+              $('.contact-success').hide();
+              $('.contact-errors').show().find('ul').empty();
+
+              for (const key in errors_messages) {
+                if (errors_messages.hasOwnProperty(key)) {
+                  const error_message = errors_messages[key];
+                  $('.contact-errors ul')
+                  .append( $(`<li>${error_message}</li>`) );
+                }
+              }
+
+            }
+          });
+        }
+        });
+
+        //delete contact
+        document.addEventListener('click', e => {
+
+          const element = e.target;
+           
+          if(element.classList.contains('contact-delete-icon')){
+            
+          const contact_row = $(element.closest('tr'));
+          const contact_id = contact_row.data('id');
+                      
+            if(confirm('Voulez vous vraiment supprimer ce contact ?')){
+
+              $.ajax({
+                type: "POST",
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: `/contact/destroy/${contact_id}`,
+                success:function(response) {
+                  const success_message = JSON.parse(response)['success_message'];
+                  $('.contact-errors').hide();
+                  $('.contact-success').show()
+                  .text(success_message);
+                  contact_row.remove();
+                },
+                error:function(e){
+                  
+                }
+              }); 
+
+            }
+                      
+          }
+
+        });
+
+      //document ready end   
+      } );
+
 
     })();
 
